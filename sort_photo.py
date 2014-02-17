@@ -7,6 +7,7 @@ import os, datetime, re, time, shutil
 
 class sort():
     def __init__(self):
+        self.disc = '/media/taras/Том В/'
         self.searchF()
 
 
@@ -17,11 +18,24 @@ class sort():
                 self.time_created = time.ctime(os.path.getmtime(self.file_name))  #Thu Jun 30 20:52:14 2011
                 match = re.search('\w{3} (\w{3}) (\d{1,2}) \d{2}:\d{2}:\d{2} (\d{4})', self.time_created)
                 if match:
-                    self.fol_time = match.group(1) + '_' + match.group(2) + '_' + match.group(3)
-                    if os.path.isdir('/media/taras/Том В/' + self.fol_time):
-                        shutil.move(self.file_name, '/media/taras/Том В/' + self.fol_time)
-    
+                    self.year = match.group(3)
+                    self.month = match.group(1)
+                    self.date = match.group(2)
 
+                    self.path_year = self.disc + self.year + '/'
+                    self.path_month = self.path_year + self.month + '/'
+                    self.path_date = self.path_month + self.date
+
+                    self.fol_time = self.month + '_' + self.date + '_' + self.year
+                    self.dir_path = self.path_date
+
+                    if os.path.isdir(self.dir_path):
+                        print 'Going to move file ', self.file_name
+                        #shutil.move(self.file_name, self.dir_path)
+                    else:
+                        #os.makedirs(self.dir_path)
+                        print 'going to create ' + self.dir_path
+                        print 'going to move this file here - ', self.file_name
 
 
 
