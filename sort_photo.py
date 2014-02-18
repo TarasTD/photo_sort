@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os, datetime, re, time, shutil
-import gtk
+import gtk, sys
 
 
 class sort():
@@ -27,21 +27,24 @@ class sort():
 
     def sort_date(self):
         self.path_year = self.disc + self.year + '/'
-        self.path_month = self.path_year + self.month + '/'
-        self.path_date = self.path_month + self.date
+        self.path_month = self.path_year + self.month
+        self.path_date = self.path_month +'/'+ self.date
 
-        self.fol_time = self.month + '_' + self.date + '_' + self.year
         self.dir_path = self.path_date
 
         self.move_files()
 
 
+
+
     def move_files(self): 
-        if os.path.isdir(self.dir_path):
+        if os.path.isdir(self.path_month):
             print 'Going to move file ', self.file_name
             #shutil.move(self.file_name, self.dir_path)
         else:
-            #os.makedirs(self.dir_path)
+            #os.makedirs(self.path_month)
+            #sys.exit()
+
             print 'going to create ' + self.dir_path
             print 'going to move this file here - ', self.file_name
 
