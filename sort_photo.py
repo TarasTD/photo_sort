@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import os, datetime, re, time, shutil
-import gtk, sys
-
+import gtk, sys, collections
 
 class sort():
     def __init__(self):
         self.disc = '/media/taras/Том В/'
+        self.info = []
         self.searchF()
 
 
@@ -22,17 +22,43 @@ class sort():
                     self.month = match.group(1)
                     self.date = match.group(2)
 
-
                     self.sort_date()
+                    self.sort_format()
+
+        self.c_format = self.count(1)
+        self.c_date = self.count(2)
+
+
+
+    def count(self, num):
+        d = {}
+        for i in self.info:
+            if i[num] in d:
+                d[i[num]] = d[i[num]]+1
+            else:
+                d[i[num]] = 1
+        return d
+# {'2006': 47, '2007': 392, '2004': 1, '2005': 14, '2008': 108, '2009': 8, '2011': 3590, '2010': 583, '2013': 614, '2012': 2465}
+# {'xml': 6, 'CR2': 196, 'psd': 2, 'NEF': 991, 'mov': 1, 'CHK': 135, 'db': 1, 'mp4': 37, 'jpg': 1174, 'MOV': 37, 'pp3': 2, 'bmp': 14, 'J
+
+
+      
+
 
     def sort_date(self):
+
         self.path_year = self.disc + self.year + '/'
         self.path_month = self.path_year + self.month
         self.path_date = self.path_month +'/'+ self.date
-
         self.dir_path = self.path_date
 
-        self.move_files()
+
+    def sort_format(self):
+        match = re.search('.+\.([a-zA-Z0-9]+)$',self.file_name)
+        if match:
+            self.f_format = match.group(1)
+            self.info.append([unicode(self.file_name), self.f_format, self.year+'_'+self.month+'_'+self.date])
+
 
 
 
