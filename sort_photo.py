@@ -7,57 +7,121 @@ import gtk, sys, collections
 class sort():
     def __init__(self):
         self.disc = '/media/taras/Том В/'
+        self.searchPlace = "/media/taras/Том В/PHOTO"
+        self.statistic = 1
         self.info = []
-        self.searchF()
+        self.minAmounth = 10
+
+        self.searchFiles()
 
 
-    def searchF(self): #/media/taras/Том В/PHOTO      /afs/ericpol.int/home/x/d/xdmy/home/Pictures 
-        for root, dirs, files in os.walk("/media/taras/Том В/PHOTO"): #\xd0\x9a\xd0
+    def searchFiles(self): #/media/taras/Том В/PHOTO      /afs/ericpol.int/home/x/d/xdmy/home/Pictures 
+        '''Search all files, get time of creation and file format'''
+
+        for root, dirs, files in os.walk(self.searchPlace): 
             for name in files:
                 self.file_name = (os.path.join(root, name))
-                self.time_created = time.ctime(os.path.getmtime(self.file_name)) #Thu Jun 30 20:52:14 2011
+                self.time_created = time.ctime(os.path.getmtime(self.file_name))    #Thu Jun 30 20:52:14 2011
                 match = re.search('\w{3} (\w{3}) (\d{1,2}) \d{2}:\d{2}:\d{2} (\d{4})', self.time_created)
                 if match:
                     self.year = match.group(3)
                     self.month = match.group(1)
                     self.date = match.group(2)
 
-                    self.sort_date()
-                    self.sort_format()
+                    self.list_of_files()
 
-        self.c_format = self.count(1)
-        self.c_date = self.count(2)
+        self.sortedFiles = self.count_dict_way()
+
+        if self.statistic:
+            self.stat()
 
 
+    def count_dict_way(self):
+        '''Storing sorted info into dict -> {year:month:date:[list of files]}'''
 
-    def count(self, num):
-        d = {}
+        d = {}                   # !!! creare separate dict value for format, to know amounth of format beforehand
         for i in self.info:
-            if i[num] in d:
-                d[i[num]] = d[i[num]]+1
+            if i[2] in d:
+                if i[3] in d[i[2]]:
+                    if i[4] in d[i[2]][i[3]]:
+                        if i[0] not in d[i[2]][i[3]][i[4]]:
+                            d[i[2]][i[3]][i[4]].append(unicode(i[0]))
+
+                    else:
+                        d[i[2]][i[3]].update({i[4]:[]})
+                        d[i[2]][i[3]][i[4]].append(unicode(i[0]))
+
+                else:
+                    d[i[2]].update({i[3]:{}})
+                    d[i[2]][i[3]] = {i[4]:[]}
+                    d[i[2]][i[3]][i[4]].append(unicode(i[0]))
+
             else:
-                d[i[num]] = 1
+                d[i[2]] = {i[3]:{}}
+                d[i[2]][i[3]] = {i[4]:[]}
+                d[i[2]][i[3]][i[4]].append(unicode(i[0]))  
         return d
-# {'2006': 47, '2007': 392, '2004': 1, '2005': 14, '2008': 108, '2009': 8, '2011': 3590, '2010': 583, '2013': 614, '2012': 2465}
-# {'xml': 6, 'CR2': 196, 'psd': 2, 'NEF': 991, 'mov': 1, 'CHK': 135, 'db': 1, 'mp4': 37, 'jpg': 1174, 'MOV': 37, 'pp3': 2, 'bmp': 14, 'J
 
 
-      
+
+    def stat(self):
+        '''Will print statistical info, if specified will also create and move files or folders'''
+
+        for year in self.sortedFiles:
+            print 'This year contains: ', len(self.sortedFiles[year]), ' monthes'
+
+            for month in self.sortedFiles[year]:
+                print 'This month contains: ', len(self.sortedFiles[year][month]), ' date'
+
+                for date in self.sortedFiles[year][month]:
+                    print 'Date - ', year, month, date
+                    print 'Contains ', len(self.sortedFiles[year][month][date]), ' files' 
+
+                    if len(self.sortedFiles[year][month][date]) >= self.minAmounth:
+                        print 'Going to create folder: ',  self.disc +year+ '/' +month+ '/' +date, '\n'
+
+                    else:
+                        print 'Going to create folder: ', self.disc+year+'/'+month, '\n'
 
 
-    def sort_date(self):
 
-        self.path_year = self.disc + self.year + '/'
-        self.path_month = self.path_year + self.month
-        self.path_date = self.path_month +'/'+ self.date
-        self.dir_path = self.path_date
+                    self.format = []
+                    for line in self.sortedFiles[year][month][date]:    # move it to seperate function, so 
+                        match = re.search('.+\.([a-zA-Z0-9]+)$', line)  # sort by format after moving files
+                        if match:
+                            self.format.append(unicode(match.group(1)))
+                    print self.basic_sort(self.format)
 
 
-    def sort_format(self):
+
+    def basic_sort(self, to_sort ):
+        d = {}
+        for i in to_sort:
+            if i in d:
+                d[i] = d[i]+1
+            else:
+                d[i] = 1
+        return d
+
+
+
+
+            
+    def createFol(self):
+        for item in self.c_year:
+
+            if not os.path.isdir(self.disc + item):
+                if self.statistic:
+                    print "going to create: ", self.disc, item
+                else:
+                    os.makedirs(self.disc + item)
+
+
+    def list_of_files(self):
         match = re.search('.+\.([a-zA-Z0-9]+)$',self.file_name)
         if match:
             self.f_format = match.group(1)
-            self.info.append([unicode(self.file_name), self.f_format, self.year+'_'+self.month+'_'+self.date])
+            self.info.append([unicode(self.file_name), self.f_format, self.year, self.month, self.date])
 
 
 
@@ -65,14 +129,20 @@ class sort():
 
     def move_files(self): 
         if os.path.isdir(self.path_month):
-            print 'Going to move file ', self.file_name
-            #shutil.move(self.file_name, self.dir_path)
+            if self.statistic:
+                print 'Going to move file ', self.file_name
+            else:
+                shutil.move(self.file_name, self.dir_path)
         else:
-            #os.makedirs(self.path_month)
-            #sys.exit()
+            if self.statistic:
+                print 'going to create ' + self.dir_path
+                print 'going to move this file here - ', self.file_name
 
-            print 'going to create ' + self.dir_path
-            print 'going to move this file here - ', self.file_name
+            else:
+                os.makedirs(self.path_month)
+                sys.exit()
+
+
 
 
 
