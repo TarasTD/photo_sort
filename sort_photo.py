@@ -37,29 +37,37 @@ class sort():
 
 
     def count_dict_way(self):
-        '''Storing sorted info into dict -> {year:month:date:[list of files]}'''
+        '''Storing sorted info into dict -> {year:month:date:format:[list of files]}'''
 
-        d = {}                   # !!! creare separate dict value for format, to know amounth of format beforehand
+        d = {}                   
         for i in self.info:
             if i[2] in d:
                 if i[3] in d[i[2]]:
                     if i[4] in d[i[2]][i[3]]:
-                        if i[0] not in d[i[2]][i[3]][i[4]]:
-                            d[i[2]][i[3]][i[4]].append(unicode(i[0]))
+                        if i[1] in d[i[2]][i[3]][i[4]]:
+                            if i[0] not in d[i[2]][i[3]][i[4]][i[1]]:
+                                d[i[2]][i[3]][i[4]][i[1]].append(unicode(i[0]))
+
+                        else:
+                            d[i[2]][i[3]][i[4]].update({i[1]:[]})
+                            d[i[2]][i[3]][i[4]][i[1]].append(unicode(i[0]))
 
                     else:
-                        d[i[2]][i[3]].update({i[4]:[]})
-                        d[i[2]][i[3]][i[4]].append(unicode(i[0]))
+                        d[i[2]][i[3]].update({i[4]:{}})
+                        d[i[2]][i[3]][i[4]] = {i[1] : []}
+                        d[i[2]][i[3]][i[4]][i[1]].append(unicode(i[0]))
 
                 else:
                     d[i[2]].update({i[3]:{}})
-                    d[i[2]][i[3]] = {i[4]:[]}
-                    d[i[2]][i[3]][i[4]].append(unicode(i[0]))
+                    d[i[2]][i[3]] = {i[4]:{}}
+                    d[i[2]][i[3]][i[4]] = {i[1]:[]}
+                    d[i[2]][i[3]][i[4]][i[1]].append(unicode(i[0])) 
 
             else:
                 d[i[2]] = {i[3]:{}}
-                d[i[2]][i[3]] = {i[4]:[]}
-                d[i[2]][i[3]][i[4]].append(unicode(i[0]))  
+                d[i[2]][i[3]] = {i[4]:{}}
+                d[i[2]][i[3]][i[4]] = {i[1]:[]}
+                d[i[2]][i[3]][i[4]][i[1]].append(unicode(i[0]))  
         return d
 
 
@@ -75,22 +83,18 @@ class sort():
 
                 for date in self.sortedFiles[year][month]:
                     print 'Date - ', year, month, date
-                    print 'Contains ', len(self.sortedFiles[year][month][date]), ' files' 
+                    print 'Contains ', len(self.sortedFiles[year][month][date]), ' formats' 
 
-                    if len(self.sortedFiles[year][month][date]) >= self.minAmounth:
-                        print 'Going to create folder: ',  self.disc +year+ '/' +month+ '/' +date, '\n'
-
-                    else:
-                        print 'Going to create folder: ', self.disc+year+'/'+month, '\n'
+                    for extension in self.sortedFiles[year][month][date]:
+                        print 'This file format ', extension, ' contains:', len(self.sortedFiles[year][month][date][extension]), ' files'
 
 
 
-                    self.format = []
-                    for line in self.sortedFiles[year][month][date]:    # move it to seperate function, so 
-                        match = re.search('.+\.([a-zA-Z0-9]+)$', line)  # sort by format after moving files
-                        if match:
-                            self.format.append(unicode(match.group(1)))
-                    print self.basic_sort(self.format)
+                        if len(self.sortedFiles[year][month][date][extension]) >= self.minAmounth:
+                            print 'Going to create folder: ',  self.disc +year+ '/' +month+ '/' +date, '\n'
+
+                        else:
+                            print 'Going to create folder: ', self.disc+year+'/'+month, '\n'
 
 
 
