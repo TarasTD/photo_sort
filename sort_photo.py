@@ -32,8 +32,10 @@ class sort():
 
         self.sortedFiles = self.count_dict_way()
 
-        if self.statistic:
-            self.stat()
+        self.sorting()
+
+        #if self.statistic:
+        #    self.stat()
 
 
     def count_dict_way(self):
@@ -71,6 +73,83 @@ class sort():
         return d
 
 
+    def sorting(self):
+
+        for year in self.sortedFiles:
+
+            for month in self.sortedFiles[year]:
+
+                for date in self.sortedFiles[year][month]:
+
+                    for extension in self.sortedFiles[year][month][date]:
+                        if len(self.sortedFiles[year]) > 1:                                   # check if there are more than one month 
+                            if len(self.sortedFiles[year][month]) > 1:                        # check if there are more than one date
+                                if len(self.sortedFiles[year][month][date]) > 1:              # check if there are more than one type of file
+                                    if len(self.sortedFiles[year][month][date][extension]) >= self.minAmounth:   # format type has enought amounth of files
+                                        self.file_path = year + '/' + month + '/' + date + '/' + extension
+                                        self.createFol(self.file_path)
+
+                                        self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
+                                    else:
+                                        self.file_path = year + '/' + month + '/' + date 
+                                        self.createFol(self.file_path)                                        
+
+                                else:
+                                    self.file_path = year + '/'+ month + '/' + date 
+                                    self.createFol(self.file_path) 
+
+                            else:
+                                if len(self.sortedFiles[year][month][date]) > 1:                   # check if there are more than one type of file
+                                    if len(self.sortedFiles[year][month][date][extension]) >= self.minAmounth:   # format type has enought amounth of files
+                                        self.file_path = year + '/' + month + '/' + extension
+                                        self.createFol(self.file_path)
+                                    else:
+                                        self.file_path = year + '/' + month
+                                        self.createFol(self.file_path) 
+                                else:
+                                    self.file_path = year + '/' + month
+                                    self.createFol(self.file_path) 
+
+                        else:
+                            if len(self.sortedFiles[year][month][date]) > 1:                   # check if there are more than one type of file
+                                if len(self.sortedFiles[year][month][date][extension]) >= self.minAmounth:   # format type has enought amounth of files
+                                    self.file_path = year + '/' + extension
+                                    self.createFol(self.file_path)
+
+                                else:
+                                    self.file_path = year
+                                    self.createFol(self.file_path)
+
+                            else:
+                                self.file_path = year
+                                self.createFol(self.file_path)
+
+
+    def move_files(self, path_to_move, files): 
+        if os.path.isdir(path_to_move):
+            for element in files:
+                if self.statistic:
+                    print 'Going to move file - ', element, ' into - ', path_to_move
+                else:
+                    shutil.move(self.file_name, path_to_move)
+        else:
+            for element in files:
+                print 'Moving to ', path_to_move, 'file:', element
+
+
+
+
+    def createFol(self, file_path):
+        if not os.path.isdir(self.disc + file_path):
+            if self.statistic:
+                pass
+                '''print "going to create: ", self.disc + file_path'''
+            else:
+                os.makedirs(self.disc + file_path)
+
+
+
+
 
     def stat(self):
         '''Will print statistical info, if specified will also create and move files or folders'''
@@ -106,19 +185,8 @@ class sort():
             else:
                 d[i] = 1
         return d
+       
 
-
-
-
-            
-    def createFol(self):
-        for item in self.c_year:
-
-            if not os.path.isdir(self.disc + item):
-                if self.statistic:
-                    print "going to create: ", self.disc, item
-                else:
-                    os.makedirs(self.disc + item)
 
 
     def list_of_files(self):
@@ -128,23 +196,6 @@ class sort():
             self.info.append([unicode(self.file_name), self.f_format, self.year, self.month, self.date])
 
 
-
-
-
-    def move_files(self): 
-        if os.path.isdir(self.path_month):
-            if self.statistic:
-                print 'Going to move file ', self.file_name
-            else:
-                shutil.move(self.file_name, self.dir_path)
-        else:
-            if self.statistic:
-                print 'going to create ' + self.dir_path
-                print 'going to move this file here - ', self.file_name
-
-            else:
-                os.makedirs(self.path_month)
-                sys.exit()
 
 
 
