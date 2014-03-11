@@ -91,38 +91,55 @@ class sort():
 
                                         self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
                                     else:
-                                        self.file_path = year + '/' + month + '/' + date 
-                                        self.createFol(self.file_path)                                        
+
+                                        self.file_path = year + '/' + month
+                                        self.createFol(self.file_path)        
+
+                                        self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])                           
 
                                 else:
-                                    self.file_path = year + '/'+ month + '/' + date 
-                                    self.createFol(self.file_path) 
+                                    if len(self.sortedFiles[year][month][date][extension]) >= self.minAmounth:   # format type has enought amounth of files
+                                        self.file_path = year + '/'+ month + '/' + date 
+                                        self.createFol(self.file_path) 
+
+                                        self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
+                                    else:
+                                        self.file_path = year + '/'+ month                                        
+                                        self.createFol(self.file_path) 
+
+                                        self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
 
                             else:
                                 if len(self.sortedFiles[year][month][date]) > 1:                   # check if there are more than one type of file
                                     if len(self.sortedFiles[year][month][date][extension]) >= self.minAmounth:   # format type has enought amounth of files
                                         self.file_path = year + '/' + month + '/' + extension
                                         self.createFol(self.file_path)
+                                        self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
                                     else:
                                         self.file_path = year + '/' + month
                                         self.createFol(self.file_path) 
+                                        self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
                                 else:
                                     self.file_path = year + '/' + month
                                     self.createFol(self.file_path) 
+                                    self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
 
                         else:
                             if len(self.sortedFiles[year][month][date]) > 1:                   # check if there are more than one type of file
                                 if len(self.sortedFiles[year][month][date][extension]) >= self.minAmounth:   # format type has enought amounth of files
                                     self.file_path = year + '/' + extension
                                     self.createFol(self.file_path)
+                                    self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
 
                                 else:
                                     self.file_path = year
                                     self.createFol(self.file_path)
+                                    self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
 
                             else:
                                 self.file_path = year
                                 self.createFol(self.file_path)
+                                self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
 
 
     def move_files(self, path_to_move, files): 
