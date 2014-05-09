@@ -4,13 +4,16 @@
 import os, datetime, re, time, shutil
 import gtk, sys, collections
 
+
 class sort():
     def __init__(self):
-        self.disc = '/media/taras/Том В/'
-        self.searchPlace = "/media/taras/Том В/PHOTO"
-        self.statistic = 1
+        self.disc = '/media/taras/external/photo_video'
+        self.searchPlace = "/media/taras/NIKON D5100"
+        self.statistic = 0
         self.info = []
         self.minAmounth = 10
+        self.copy = True
+        self.move = False
 
         self.searchFiles()
 
@@ -142,13 +145,19 @@ class sort():
                                 self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
 
 
-    def move_files(self, path_to_move, files): 
+    def move_files(self, file_path, files): 
+        path_to_move = (self.disc + '/' + file_path)
+
         if os.path.isdir(path_to_move):
+
             for element in files:
                 if self.statistic:
                     print 'Going to move file - ', element, ' into - ', path_to_move
-                else:
-                    shutil.move(self.file_name, path_to_move)
+                elif self.copy:
+                    print "Coping file ", element, ' into ', path_to_move
+                    shutil.copyfile(element, os.path.join(path_to_move, os.path.basename(element)))
+#                elif self.move:
+#                    shutil.move(self.file_name, path_to_move)
         else:
             for element in files:
                 print 'Moving to ', path_to_move, 'file:', element
@@ -157,12 +166,12 @@ class sort():
 
 
     def createFol(self, file_path):
-        if not os.path.isdir(self.disc + file_path):
+        if not os.path.isdir(self.disc + '/' + file_path):
             if self.statistic:
                 pass
                 '''print "going to create: ", self.disc + file_path'''
             else:
-                os.makedirs(self.disc + file_path)
+                os.makedirs(self.disc + "/" + file_path)
 
 
 
