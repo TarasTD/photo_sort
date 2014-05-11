@@ -7,12 +7,12 @@ import sys, collections
 
 class sort():
     def __init__(self):
-        self.disc = '/media/taras/external/photo_video'
-        self.searchPlace = "/media/taras/NIKON D5100"
-        self.statistic = 0
+        self.disc = "/Volumes/external/photo_video"                 # for linux'/media/taras/external/photo_video'
+        self.searchPlace = "/Users/tarasdmytrus/Pictures/Photo_nikon/may"            #"/Users/tarasdmytrus/Pictures/Photo_nikon/may"
+        self.statistic = 1
         self.info = []
         self.minAmounth = 10
-        self.copy = True
+        self.copy = 0
         self.move = False
 
         self.searchFiles()
@@ -25,16 +25,20 @@ class sort():
             for name in files:
                 self.file_name = (os.path.join(root, name))
                 self.time_created = time.ctime(os.path.getmtime(self.file_name))    #Thu Jun 30 20:52:14 2011
-                match = re.search('\w{3} (\w{3}) (\d{1,2}) \d{2}:\d{2}:\d{2} (\d{4})', self.time_created)
+                match = re.search('\w{3} (\w{3})\s{1,2}(\d{1,2}) \d{2}:\d{2}:\d{2} (\d{4})', self.time_created)  # needs two spaces if date 
+                                                                                                                 # contain only one digit
                 if match:
                     self.year = match.group(3)
                     self.month = match.group(1)
                     self.date = match.group(2)
-
-                    self.list_of_files()
+                    temp_list = self.list_of_files(self.year, self.month, self.date, self.file_name)
+                    if temp_list:
+                        self.info.append(temp_list)
+                else:
+                    print 'Date of creation not found, file - ', self.file_name, self.time_created
+                    continue
 
         self.sortedFiles = self.count_dict_way()
-
         self.sorting()
 
         #if self.statistic:
@@ -43,7 +47,7 @@ class sort():
 
     def count_dict_way(self):
         '''Storing sorted info into dict -> {year:month:date:format:[list of files]}'''
-
+        #print self.info, '------', type(self.info)
         d = {}                   
         for i in self.info:
             if i[2] in d:
@@ -145,21 +149,32 @@ class sort():
                                 self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
 
 
-    def move_files(self, file_path, files): 
+    def move_files(self, file_path, files1): 
         path_to_move = (self.disc + '/' + file_path)
 
-        if os.path.isdir(path_to_move):
+        # Check if file already exists
+        for element in files1:
+            if self.statistic:
+                if os.path.isfile(os.path.join(path_to_move, os.path.basename(element))):
+                    print "File already exists"
+                    print "Scipping file - ", os.path.join(path_to_move, os.path.basename(element))
 
-            for element in files:
+                    # remove file from dict of files to copy/move
+                    files1.remove(element)
+                else:
+                    print "File don't exists - ", os.path.join(path_to_move, os.path.basename(element))
+
+        if os.path.isdir(path_to_move):
+            for element in files1:
                 if self.statistic:
-                    print 'Going to move file - ', element, ' into - ', path_to_move
+                    print 'Going to move/copy file - ', element, ' into - ', path_to_move
                 elif self.copy:
                     print "Coping file ", element, ' into ', path_to_move
                     shutil.copyfile(element, os.path.join(path_to_move, os.path.basename(element)))
 #                elif self.move:
 #                    shutil.move(self.file_name, path_to_move)
         else:
-            for element in files:
+            for element in files1:
                 print 'Moving to ', path_to_move, 'file:', element
 
 
@@ -215,11 +230,14 @@ class sort():
 
 
 
-    def list_of_files(self):
-        match = re.search('.+\.([a-zA-Z0-9]+)$',self.file_name)
+    def list_of_files(self, year, month, date, file_name):
+        info = []
+        match = re.search('.+\.([a-zA-Z0-9]+)$', file_name)
         if match:
             self.f_format = match.group(1)
-            self.info.append([unicode(self.file_name), self.f_format, self.year, self.month, self.date])
+            info = [unicode(file_name), self.f_format, year, month, date]
+            return info
+        print 'Can not find extencion! File - ', file_name
 
 
 
