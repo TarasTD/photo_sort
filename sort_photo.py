@@ -7,15 +7,9 @@ import sys, collections
 
 class sort():
     def __init__(self):
-<<<<<<< HEAD
-        self.disc = '/Users/tarasdmytrus'
-        self.searchPlace = "/Users/tarasdmytrus/Pictures"
-        self.statistic = 1
-=======
         self.disc = '/media/taras/external/photo_video'
         self.searchPlace = "/media/taras/NIKON D5100"
         self.statistic = 0
->>>>>>> origin/master
         self.info = []
         self.minAmounth = 10
         self.copy = True
