@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import os, datetime, re, time, shutil
-import gtk, sys, collections
+import sys, collections
 
 class sort():
     def __init__(self):
-        self.disc = '/media/taras/Том В/'
-        self.searchPlace = "/media/taras/Том В/PHOTO"
+        self.disc = '/Users/tarasdmytrus'
+        self.searchPlace = "/Users/tarasdmytrus/Pictures"
         self.statistic = 1
         self.info = []
         self.minAmounth = 10
@@ -15,7 +15,7 @@ class sort():
         self.searchFiles()
 
 
-    def searchFiles(self): #/media/taras/Том В/PHOTO      /afs/ericpol.int/home/x/d/xdmy/home/Pictures 
+    def searchFiles(self): #/media/taras/Том В/PHOTO      /afs/ericpol.int/home/x/d/xdmy/home/Pictures /Users/tarasdmytrus/Диск Google
         '''Search all files, get time of creation and file format'''
 
         for root, dirs, files in os.walk(self.searchPlace): 
