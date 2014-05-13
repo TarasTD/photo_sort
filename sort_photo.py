@@ -25,7 +25,7 @@ class sort():
             for name in files:
                 self.file_name = (os.path.join(root, name))
                 self.time_created = time.ctime(os.path.getmtime(self.file_name))    #Thu Jun 30 20:52:14 2011
-                match = re.search('\w{3} (\w{3})\s{1,2}(\d{1,2}) \d{2}:\d{2}:\d{2} (\d{4})', self.time_created)  # needs two spaces if date 
+                match = re.search('\w{3}\s{1,2}(\w{3})\s{1,2}(\d{1,2})\s{1,2}\d{2}:\d{2}:\d{2}\s{1,2}(\d{4})', self.time_created)  # needs two spaces if date 
                                                                                                                  # contain only one digit
                 if match:
                     self.year = match.group(3)
@@ -47,7 +47,7 @@ class sort():
 
     def count_dict_way(self):
         '''Storing sorted info into dict -> {year:month:date:format:[list of files]}'''
-        #print self.info, '------', type(self.info)
+
         d = {}                   
         for i in self.info:
             if i[2] in d:
@@ -162,7 +162,7 @@ class sort():
                     # remove file from dict of files to copy/move
                     files1.remove(element)
                 else:
-                    print "File don't exists - ", os.path.join(path_to_move, os.path.basename(element))
+                    print "File doesn't exist - ", os.path.join(path_to_move, os.path.basename(element))
 
         if os.path.isdir(path_to_move):
             for element in files1:
@@ -178,8 +178,6 @@ class sort():
                 print 'Moving to ', path_to_move, 'file:', element
 
 
-
-
     def createFol(self, file_path):
         if not os.path.isdir(self.disc + '/' + file_path):
             if self.statistic:
@@ -187,9 +185,6 @@ class sort():
                 '''print "going to create: ", self.disc + file_path'''
             else:
                 os.makedirs(self.disc + "/" + file_path)
-
-
-
 
 
     def stat(self):
