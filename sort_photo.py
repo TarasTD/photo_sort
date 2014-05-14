@@ -230,7 +230,7 @@ class sort():
         match = re.search('.+\.([a-zA-Z0-9]+)$', file_name)
         if match:
             self.f_format = match.group(1)
-            print file_name, self.f_format, year, month, date
+
             info = [unicode(file_name), self.f_format, year, month, date]
             return info
         print 'Can not find extencion! File - ', file_name
