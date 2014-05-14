@@ -7,8 +7,8 @@ import sys, collections
 
 class sort():
     def __init__(self):
-        self.disc = "/Volumes/external/photo_video"                 # for linux'/media/taras/external/photo_video'
-        self.searchPlace = "/Users/tarasdmytrus/Pictures/Photo_nikon/may"            #"/Users/tarasdmytrus/Pictures/Photo_nikon/may"
+        self.disc = "/media/taras/external/photo_video"                 # for linux'/media/taras/external/photo_video'
+        self.searchPlace = "/media/taras/Том В/PHOTO/"            #"/Users/tarasdmytrus/Pictures/Photo_nikon/may"
         self.statistic = 1
         self.info = []
         self.minAmounth = 10
@@ -230,6 +230,7 @@ class sort():
         match = re.search('.+\.([a-zA-Z0-9]+)$', file_name)
         if match:
             self.f_format = match.group(1)
+            print file_name, self.f_format, year, month, date
             info = [unicode(file_name), self.f_format, year, month, date]
             return info
         print 'Can not find extencion! File - ', file_name
