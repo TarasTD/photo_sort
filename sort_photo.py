@@ -7,12 +7,12 @@ import sys, collections
 
 class sort():
     def __init__(self):
-        self.disc = "/Volumes/external/photo_video"                 # for linux'/media/taras/external/photo_video'
-        self.searchPlace = "/Users/tarasdmytrus/Pictures/Photo_nikon/may"            #"/Users/tarasdmytrus/Pictures/Photo_nikon/may"
-        self.statistic = 1
+        self.disc = "/media/taras/external/photo_video"                 # for linux'/media/taras/external/photo_video'
+        self.searchPlace = "/media/taras/Том В/PHOTO"            #"/Users/tarasdmytrus/Pictures/Photo_nikon/may"
+        self.statistic = 0
         self.info = []
         self.minAmounth = 10
-        self.copy = 0
+        self.copy = 1
         self.move = False
 
         self.searchFiles()
@@ -169,8 +169,8 @@ class sort():
                 if self.statistic:
                     print 'Going to move/copy file - ', element, ' into - ', path_to_move
                 elif self.copy:
-                    print "Coping file ", element, ' into ', path_to_move
-                    shutil.copyfile(element, os.path.join(path_to_move, os.path.basename(element)))
+                    print "Coping file ", element.encode('utf-8'), ' into ', path_to_move
+                    shutil.copyfile(element.encode('utf-8'), os.path.join(path_to_move, os.path.basename(element.encode('utf-8'))))
 #                elif self.move:
 #                    shutil.move(self.file_name, path_to_move)
         else:
@@ -231,11 +231,12 @@ class sort():
 
 
     def list_of_files(self, year, month, date, file_name):
+        print file_name
         info = []
         match = re.search('.+\.([a-zA-Z0-9]+)$', file_name)
         if match:
             self.f_format = match.group(1)
-            info = [unicode(file_name), self.f_format, year, month, date]
+            info = [file_name.decode('utf-8'), self.f_format, year, month, date]
             return info
         print 'Can not find extencion! File - ', file_name
 
