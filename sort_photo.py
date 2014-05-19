@@ -24,14 +24,14 @@ class sort():
     def searchFiles(self): #/media/taras/Том В/PHOTO      /afs/ericpol.int/home/x/d/xdmy/home/Pictures /Users/tarasdmytrus/Диск Google
         '''Search all files, get time of creation and file format'''
 
-        self.baseFiles = []
+        self.baseFiles = {}
         for root, dirs, files in os.walk(self.searchPlace): 
             for name in files:
                 self.file_name = (os.path.join(root, name))
                 self.time_created = time.ctime(os.path.getmtime(self.file_name))    #Thu Jun 30 20:52:14 2011
 
                 match = re.search('\w{3} (\w{3})\s{1,2}(\d{1,2}) \d{2}:\d{2}:\d{2} (\d{4})', self.time_created)  # needs two spaces if date 
-                self.baseFiles.append([[name, self.time_created], self.file_name])
+                self.baseFiles.update({'name, self.time_created' : self.file_name})
                                                                                                                  # contain only one digit
                 if match:
                     self.year = match.group(3)
@@ -53,11 +53,33 @@ class sort():
         #if self.statistic:
         #    self.stat()
 
+def load_img(img):
+    '''Get date from EXIF data of image '''
+
+    self.img_file = open (img, 'rb')
+    self.tags = exifread.process_file(self.img_file, details=False, stop_tag="EXIF DateTimeOriginal")
+
+    if self.tags:
+        for tag in self.tags:
+            if tag == 'EXIF DateTimeOriginal':
+                return self.tags[tag]
+                break
+            else:
+                continue
+
+            print 'Tag not found'
+
+    else:
+        print 'No tags found!'
+
+
+    self.img_file.close()
+
 
     def compare_files(self):
         '''function to check if all files were copied'''
 
-        self.copiedFiles = []
+        self.copiedFiles = {}
 
         '''for root, dirs, files in os.walk(self.searchPlace):
             for name in files:
@@ -67,13 +89,16 @@ class sort():
             for name in files:
                 self.file_name_copied = (os.path.join(root, name))
                 self.time_copied = time.ctime(os.path.getmtime(self.file_name_copied))    #Thu Jun 30 20:52:14 2011
-                self.copiedFiles.append([[name, self.time_copied],  self.file_name_copied])
+                self.copiedFiles.update({'name, self.time_copied' : self.file_name_copied})
 
         for base in self.baseFiles:
-            if base[0] not in self.copiedFiles:
-                print 'File', base[0][0].decode('utf-8'), base[1], ' in ', base[1].decode('utf-8'), 'is not found!'
-        else:
-            print "All file are copied, there were - ", len(self.baseFiles), ' files, copied - ', len(self.copiedFiles)  
+            if base not in self.copiedFiles:
+                print 'File', base.decode('utf-8'), self.baseFiles[base], ' is NOT found!'
+
+            else:
+                print base.decode('utf-8'), self.baseFiles[base], ' is found in ', self.copiedFiles[base]
+
+        print "There were - ", len(self.baseFiles), ' files, copied - ', len(self.copiedFiles)  
 
 
 
