@@ -8,12 +8,15 @@ import sys, collections
 class sort():
     def __init__(self):
         self.disc = "/media/taras/external/photo_video"                 # for linux'/media/taras/external/photo_video'
+
         self.searchPlace = "/media/taras/Том В/PHOTO/"            #"/Users/tarasdmytrus/Pictures/Photo_nikon/may"
         self.statistic = 1
         self.info = []
         self.minAmounth = 10
         self.copy = 0
         self.move = False
+        self.compare = True
+
 
         self.searchFiles()
 
@@ -21,11 +24,14 @@ class sort():
     def searchFiles(self): #/media/taras/Том В/PHOTO      /afs/ericpol.int/home/x/d/xdmy/home/Pictures /Users/tarasdmytrus/Диск Google
         '''Search all files, get time of creation and file format'''
 
+        self.baseFiles = []
         for root, dirs, files in os.walk(self.searchPlace): 
             for name in files:
                 self.file_name = (os.path.join(root, name))
                 self.time_created = time.ctime(os.path.getmtime(self.file_name))    #Thu Jun 30 20:52:14 2011
-                match = re.search('\w{3}\s{1,2}(\w{3})\s{1,2}(\d{1,2})\s{1,2}\d{2}:\d{2}:\d{2}\s{1,2}(\d{4})', self.time_created)  # needs two spaces if date 
+
+                match = re.search('\w{3} (\w{3})\s{1,2}(\d{1,2}) \d{2}:\d{2}:\d{2} (\d{4})', self.time_created)  # needs two spaces if date 
+                self.baseFiles.append([[name, self.time_created], self.file_name])
                                                                                                                  # contain only one digit
                 if match:
                     self.year = match.group(3)
@@ -41,8 +47,38 @@ class sort():
         self.sortedFiles = self.count_dict_way()
         self.sorting()
 
+        if self.compare:
+            self.compare_files()   # check if all files are copied
+
         #if self.statistic:
         #    self.stat()
+
+
+    def compare_files(self):
+        '''function to check if all files were copied'''
+
+        self.copiedFiles = []
+
+        '''for root, dirs, files in os.walk(self.searchPlace):
+            for name in files:
+                self.baseFiles.append([name, os.path.join(root, name)])'''
+
+        for root, dirs, files in os.walk(self.disc):
+            for name in files:
+                self.file_name_copied = (os.path.join(root, name))
+                self.time_copied = time.ctime(os.path.getmtime(self.file_name_copied))    #Thu Jun 30 20:52:14 2011
+                self.copiedFiles.append([[name, self.time_copied],  self.file_name_copied])
+
+        for base in self.baseFiles:
+            if base[0] not in self.copiedFiles:
+                print 'File', base[0][0].decode('utf-8'), base[1], ' in ', base[1].decode('utf-8'), 'is not found!'
+        else:
+            print "All file are copied, there were - ", len(self.baseFiles), ' files, copied - ', len(self.copiedFiles)  
+
+
+
+
+
 
 
     def count_dict_way(self):
@@ -169,8 +205,14 @@ class sort():
                 if self.statistic:
                     print 'Going to move/copy file - ', element, ' into - ', path_to_move
                 elif self.copy:
-                    print "Coping file ", element, ' into ', path_to_move
-                    shutil.copyfile(element, os.path.join(path_to_move, os.path.basename(element)))
+                    print "Coping file ", element.encode('utf-8'), ' into ', path_to_move
+                    shutil.copyfile(element.encode('utf-8'), os.path.join(path_to_move, os.path.basename(element.encode('utf-8'))))
+
+                    stat = os.stat(element.encode('utf-8'))
+                    os.utime(os.path.join(path_to_move, os.path.basename(element.encode('utf-8'))), (stat.st_atime, stat.st_mtime))
+
+
+
 #                elif self.move:
 #                    shutil.move(self.file_name, path_to_move)
         else:
@@ -231,7 +273,7 @@ class sort():
         if match:
             self.f_format = match.group(1)
 
-            info = [unicode(file_name), self.f_format, year, month, date]
+            info = [file_name.decode('utf-8'), self.f_format, year, month, date]
             return info
         print 'Can not find extencion! File - ', file_name
 
