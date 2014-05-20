@@ -7,13 +7,13 @@ import sys, collections
 
 class sort():
     def __init__(self):
-        self.disc = "/media/taras/external/photo_video"                 # for linux'/media/taras/external/photo_video'
+        self.disc = "/afs/ericpol.int/home/x/d/xdmy/home/Pictures/photo_video"                 # for linux'/media/taras/external/photo_video'
 
-        self.searchPlace = "/media/taras/Том В/PHOTO/"            #"/Users/tarasdmytrus/Pictures/Photo_nikon/may"
-        self.statistic = 1
+        self.searchPlace = "/afs/ericpol.int/home/x/d/xdmy/home/Pictures/to copy"            #"/Users/tarasdmytrus/Pictures/Photo_nikon/may"
+        self.statistic = 0
         self.info = []
         self.minAmounth = 10
-        self.copy = 0
+        self.copy = 1
         self.move = False
         self.compare = True
 
@@ -28,21 +28,32 @@ class sort():
         for root, dirs, files in os.walk(self.searchPlace): 
             for name in files:
                 self.file_name = (os.path.join(root, name))
-                self.time_created = time.ctime(os.path.getmtime(self.file_name))    #Thu Jun 30 20:52:14 2011
 
-                match = re.search('\w{3} (\w{3})\s{1,2}(\d{1,2}) \d{2}:\d{2}:\d{2} (\d{4})', self.time_created)  # needs two spaces if date 
-                self.baseFiles.update({'name, self.time_created' : self.file_name})
-                                                                                                                 # contain only one digit
-                if match:
-                    self.year = match.group(3)
-                    self.month = match.group(1)
-                    self.date = match.group(2)
+                if self.load_img(self.file_name):
+                    self.year, self.month, self.date = self.load_img(self.file_name)
+                    self.name_time =  name +' '+ self.time_created
+                    self.baseFiles.update({self.name_time : self.file_name})
                     temp_list = self.list_of_files(self.year, self.month, self.date, self.file_name)
-                    if temp_list:
-                        self.info.append(temp_list)
+                        if temp_list:
+                            self.info.append(temp_list)
+
                 else:
-                    print 'Date of creation not found, file - ', self.file_name, self.time_created
-                    continue
+                    self.time_created = time.ctime(os.path.getmtime(self.file_name))    #Thu Jun 30 20:52:14 2011
+
+                    match = re.search('\w{3} (\w{3})\s{1,2}(\d{1,2}) \d{2}:\d{2}:\d{2} (\d{4})', self.time_created)  # needs two spaces if date 
+                    self.name_time =  name +' '+ self.time_created
+                    self.baseFiles.update({self.name_time : self.file_name})
+                                                                                                                     # contain only one digit
+                    if match:
+                        self.year = match.group(3)
+                        self.month = match.group(1)
+                        self.date = match.group(2)
+                        temp_list = self.list_of_files(self.year, self.month, self.date, self.file_name)
+                        if temp_list:
+                            self.info.append(temp_list)
+                    else:
+                        print 'Date of creation not found, file - ', self.file_name, self.time_created
+                        continue
 
         self.sortedFiles = self.count_dict_way()
         self.sorting()
@@ -53,27 +64,29 @@ class sort():
         #if self.statistic:
         #    self.stat()
 
-def load_img(img):
-    '''Get date from EXIF data of image '''
+    def load_img(img):
+        '''Get date from EXIF data of image '''
 
-    self.img_file = open (img, 'rb')
-    self.tags = exifread.process_file(self.img_file, details=False, stop_tag="EXIF DateTimeOriginal")
+        self.img_file = open (img, 'rb')
+        self.tags = exifread.process_file(self.img_file, details=False, stop_tag="EXIF DateTimeOriginal")
 
-    if self.tags:
-        for tag in self.tags:
-            if tag == 'EXIF DateTimeOriginal':
-                return self.tags[tag]
-                break
-            else:
-                continue
+        if self.tags:
+            for tag in self.tags:
+                if tag == 'EXIF DateTimeOriginal':
+                    return self.tags[tag]
+                    break
+                else:
+                    continue
 
-            print 'Tag not found'
+                print 'Tag not found'
+                return 0
 
-    else:
-        print 'No tags found!'
+        else:
+            print 'No tags found!'
+            return 0
 
 
-    self.img_file.close()
+        self.img_file.close()
 
 
     def compare_files(self):
@@ -81,27 +94,19 @@ def load_img(img):
 
         self.copiedFiles = {}
 
-        '''for root, dirs, files in os.walk(self.searchPlace):
-            for name in files:
-                self.baseFiles.append([name, os.path.join(root, name)])'''
-
         for root, dirs, files in os.walk(self.disc):
             for name in files:
                 self.file_name_copied = (os.path.join(root, name))
                 self.time_copied = time.ctime(os.path.getmtime(self.file_name_copied))    #Thu Jun 30 20:52:14 2011
-                self.copiedFiles.update({'name, self.time_copied' : self.file_name_copied})
+                self.file_time_c = name+' '+self.time_copied
+                self.copiedFiles.update({self.file_time_c : self.file_name_copied})
 
         for base in self.baseFiles:
             if base not in self.copiedFiles:
                 print 'File', base.decode('utf-8'), self.baseFiles[base], ' is NOT found!'
 
-            else:
-                print base.decode('utf-8'), self.baseFiles[base], ' is found in ', self.copiedFiles[base]
-
         print "There were - ", len(self.baseFiles), ' files, copied - ', len(self.copiedFiles)  
-
-
-
+        #print self.baseFiles, '---------------', self.copiedFiles
 
 
 
@@ -182,6 +187,7 @@ def load_img(img):
                                     if len(self.sortedFiles[year][month][date][extension]) >= self.minAmounth:   # format type has enought amounth of files
                                         self.file_path = year + '/' + month + '/' + extension
                                         self.createFol(self.file_path)
+
                                         self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
                                     else:
                                         self.file_path = year + '/' + month
@@ -197,16 +203,20 @@ def load_img(img):
                                 if len(self.sortedFiles[year][month][date][extension]) >= self.minAmounth:   # format type has enought amounth of files
                                     self.file_path = year + '/' + extension
                                     self.createFol(self.file_path)
+
                                     self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
 
                                 else:
                                     self.file_path = year
                                     self.createFol(self.file_path)
+
                                     self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
+
 
                             else:
                                 self.file_path = year
                                 self.createFol(self.file_path)
+
                                 self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
 
 
@@ -214,16 +224,14 @@ def load_img(img):
         path_to_move = (self.disc + '/' + file_path)
 
         # Check if file already exists
-        for element in files1:
-            if self.statistic:
-                if os.path.isfile(os.path.join(path_to_move, os.path.basename(element))):
-                    print "File already exists"
-                    print "Scipping file - ", os.path.join(path_to_move, os.path.basename(element))
+        for element in files1[:]:
+            if os.path.isfile(os.path.join(path_to_move, os.path.basename(element.encode('utf-8')))):
+                print "Scipping file - ", os.path.join(path_to_move, os.path.basename(element.encode('utf-8')))
 
-                    # remove file from dict of files to copy/move
-                    files1.remove(element)
-                else:
-                    print "File doesn't exist - ", os.path.join(path_to_move, os.path.basename(element))
+                # remove file from dict of files to copy/move
+                files1.remove(element)
+            else:
+                print "File doesn't exist - ", os.path.join(path_to_move, os.path.basename(element))
 
         if os.path.isdir(path_to_move):
             for element in files1:
@@ -251,6 +259,7 @@ def load_img(img):
                 pass
                 '''print "going to create: ", self.disc + file_path'''
             else:
+
                 os.makedirs(self.disc + "/" + file_path)
 
 
@@ -291,7 +300,6 @@ def load_img(img):
        
 
 
-
     def list_of_files(self, year, month, date, file_name):
         info = []
         match = re.search('.+\.([a-zA-Z0-9]+)$', file_name)
@@ -301,10 +309,6 @@ def load_img(img):
             info = [file_name.decode('utf-8'), self.f_format, year, month, date]
             return info
         print 'Can not find extencion! File - ', file_name
-
-
-
-
 
 
 
