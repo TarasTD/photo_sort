@@ -3,6 +3,7 @@
 
 import os, datetime, re, time, shutil
 import sys, collections
+import exifread
 
 
 class sort():
@@ -34,8 +35,8 @@ class sort():
                     self.name_time =  name +' '+ self.time_created
                     self.baseFiles.update({self.name_time : self.file_name})
                     temp_list = self.list_of_files(self.year, self.month, self.date, self.file_name)
-                        if temp_list:
-                            self.info.append(temp_list)
+                    if temp_list:
+                        self.info.append(temp_list)
 
                 else:
                     self.time_created = time.ctime(os.path.getmtime(self.file_name))    #Thu Jun 30 20:52:14 2011
@@ -64,8 +65,10 @@ class sort():
         #if self.statistic:
         #    self.stat()
 
-    def load_img(img):
+    def load_img(self, img):
         '''Get date from EXIF data of image '''
+
+        self.month_name = {"01" :'Jan', "02" :'Feb', "03" : 'Mar', "04" :'Apr', "05" :'May', "06" :'Jun', "07" :'Jul', "08" :'Aug', "09" :'Sep', "10" :'Oct', "11" :'Nov', "12" :'Dec'}
 
         self.img_file = open (img, 'rb')
         self.tags = exifread.process_file(self.img_file, details=False, stop_tag="EXIF DateTimeOriginal")
@@ -73,13 +76,25 @@ class sort():
         if self.tags:
             for tag in self.tags:
                 if tag == 'EXIF DateTimeOriginal':
-                    return self.tags[tag]
+                    self.exif_date = self.tags[tag]
+
+                    match = re.search('(\d{4}):(\d{2}):(\d{2})', str(self.exif_date)) 
+                    if match:
+                        year = match.group(1)
+                        month = self.month_name[str(match.group(2))]
+                        date = match.group(3)
+                        return year, month, date
+
+                    else:
+                        print 'Date can not be read from EXIF!'                                      # self.year, self.month, self.date, 
+                        return 0
                     break
                 else:
                     continue
 
                 print 'Tag not found'
                 return 0
+
 
         else:
             print 'No tags found!'
