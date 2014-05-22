@@ -8,13 +8,13 @@ import exifread
 
 class sort():
     def __init__(self):
-        self.disc = "/afs/ericpol.int/home/x/d/xdmy/home/Pictures/photo_video"                 # for linux'/media/taras/external/photo_video'
+        self.disc = "/Users/tarasdmytrus/Pictures/tets"                 # for linux'/media/taras/external/photo_video'
 
-        self.searchPlace = "/afs/ericpol.int/home/x/d/xdmy/home/Pictures/to copy"            #"/Users/tarasdmytrus/Pictures/Photo_nikon/may"
-        self.statistic = 0
+        self.searchPlace = "/Users/tarasdmytrus/Pictures"            #"/Users/tarasdmytrus/Pictures/Photo_nikon/may"
+        self.statistic = 1
         self.info = []
         self.minAmounth = 10
-        self.copy = 1
+        self.copy = 0
         self.move = False
         self.compare = True
 
@@ -31,8 +31,9 @@ class sort():
                 self.file_name = (os.path.join(root, name))
 
                 if self.load_img(self.file_name):
-                    self.year, self.month, self.date = self.load_img(self.file_name)
-                    self.name_time =  name +' '+ self.time_created
+                    self.year, self.month, self.date, self.exif_date = self.load_img(self.file_name)
+                    self.name_time =  name +' '+ self.exif_date
+                    print self.name_time
                     self.baseFiles.update({self.name_time : self.file_name})
                     temp_list = self.list_of_files(self.year, self.month, self.date, self.file_name)
                     if temp_list:
@@ -71,37 +72,27 @@ class sort():
         self.month_name = {"01" :'Jan', "02" :'Feb', "03" : 'Mar', "04" :'Apr', "05" :'May', "06" :'Jun', "07" :'Jul', "08" :'Aug', "09" :'Sep', "10" :'Oct', "11" :'Nov', "12" :'Dec'}
 
         self.img_file = open (img, 'rb')
-        self.tags = exifread.process_file(self.img_file, details=False, stop_tag="EXIF DateTimeOriginal")
 
-        if self.tags:
-            for tag in self.tags:
-                if tag == 'EXIF DateTimeOriginal':
-                    self.exif_date = self.tags[tag]
+        try: 
+            self.tags = exifread.process_file(self.img_file, details=False, stop_tag="EXIF DateTimeOriginal")
+            self.exif_date = str(self.tags['EXIF DateTimeOriginal'])
+            match = re.search('(\d{4}):(\d{2}):(\d{2})', str(self.exif_date)) 
+            if match:
+                year = match.group(1)
+                month = self.month_name[str(match.group(2))]
+                date = match.group(3)
+                self.img_file.close()
+                return year, month, date, self.exif_date
 
-                    match = re.search('(\d{4}):(\d{2}):(\d{2})', str(self.exif_date)) 
-                    if match:
-                        year = match.group(1)
-                        month = self.month_name[str(match.group(2))]
-                        date = match.group(3)
-                        return year, month, date
-
-                    else:
-                        print 'Date can not be read from EXIF!'                                      # self.year, self.month, self.date, 
-                        return 0
-                    break
-                else:
-                    continue
-
-                print 'Tag not found'
+            else:
+                print 'Date can not be read from EXIF!'                                      # self.year, self.month, self.date, 
+                self.img_file.close()
                 return 0
 
-
-        else:
-            print 'No tags found!'
+        except KeyError:
+            print 'Tag for file - ', img, ' not found!'
+            self.img_file.close()
             return 0
-
-
-        self.img_file.close()
 
 
     def compare_files(self):
@@ -118,7 +109,7 @@ class sort():
 
         for base in self.baseFiles:
             if base not in self.copiedFiles:
-                print 'File', base.decode('utf-8'), self.baseFiles[base], ' is NOT found!'
+                print 'File', base, self.baseFiles[base], ' is NOT found!'
 
         print "There were - ", len(self.baseFiles), ' files, copied - ', len(self.copiedFiles)  
         #print self.baseFiles, '---------------', self.copiedFiles
@@ -246,7 +237,7 @@ class sort():
                 # remove file from dict of files to copy/move
                 files1.remove(element)
             else:
-                print "File doesn't exist - ", os.path.join(path_to_move, os.path.basename(element))
+                print "File doesn't exist - ", os.path.join(path_to_move, os.path.basename(element.encode('utf-8')))
 
         if os.path.isdir(path_to_move):
             for element in files1:
@@ -265,7 +256,7 @@ class sort():
 #                    shutil.move(self.file_name, path_to_move)
         else:
             for element in files1:
-                print 'Moving to ', path_to_move, 'file:', element
+                print 'Moving to ', path_to_move, 'file:', element.encode('utf-8')
 
 
     def createFol(self, file_path):
