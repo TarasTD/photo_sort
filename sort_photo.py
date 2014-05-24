@@ -8,9 +8,9 @@ import exifread
 
 class sort():
     def __init__(self):
-        self.disc = "/Users/tarasdmytrus/Pictures/tets"                 # for linux'/media/taras/external/photo_video'
+        self.disc = "/media/taras/external/photo_2"                 # for linux'/media/taras/external/photo_video'
 
-        self.searchPlace = "/Users/tarasdmytrus/Pictures"            #"/Users/tarasdmytrus/Pictures/Photo_nikon/may"
+        self.searchPlace = "/media/taras/Том В/PHOTO"            #"/Users/tarasdmytrus/Pictures/Photo_nikon/may"
         self.statistic = 1
         self.info = []
         self.minAmounth = 10
@@ -33,7 +33,6 @@ class sort():
                 if self.load_img(self.file_name):
                     self.year, self.month, self.date, self.exif_date = self.load_img(self.file_name)
                     self.name_time =  name +' '+ self.exif_date
-                    print self.name_time
                     self.baseFiles.update({self.name_time : self.file_name})
                     temp_list = self.list_of_files(self.year, self.month, self.date, self.file_name)
                     if temp_list:
@@ -54,7 +53,8 @@ class sort():
                         if temp_list:
                             self.info.append(temp_list)
                     else:
-                        print 'Date of creation not found, file - ', self.file_name, self.time_created
+                        if not self.statistic:
+                            print 'Date of creation not found, file - ', self.file_name, self.time_created
                         continue
 
         self.sortedFiles = self.count_dict_way()
@@ -85,12 +85,14 @@ class sort():
                 return year, month, date, self.exif_date
 
             else:
-                print 'Date can not be read from EXIF!'                                      # self.year, self.month, self.date, 
+                if not self.statistic:
+                    print 'Date can not be read from EXIF!'                                      # self.year, self.month, self.date, 
                 self.img_file.close()
                 return 0
 
         except KeyError:
-            print 'Tag for file - ', img, ' not found!'
+            if not self.statistic:
+                print 'Tag for file - ', img, ' not found!'
             self.img_file.close()
             return 0
 
@@ -103,9 +105,15 @@ class sort():
         for root, dirs, files in os.walk(self.disc):
             for name in files:
                 self.file_name_copied = (os.path.join(root, name))
-                self.time_copied = time.ctime(os.path.getmtime(self.file_name_copied))    #Thu Jun 30 20:52:14 2011
-                self.file_time_c = name+' '+self.time_copied
-                self.copiedFiles.update({self.file_time_c : self.file_name_copied})
+                if self.load_img(self.file_name_copied):
+                    year, month, date, exif_date = self.load_img(self.file_name_copied)
+                    self.name_time =  name +' '+ self.exif_date
+                    self.copiedFiles.update({self.name_time : self.file_name_copied})
+
+                else:
+                    self.time_copied = time.ctime(os.path.getmtime(self.file_name_copied))    #Thu Jun 30 20:52:14 2011
+                    self.file_time_c = name+' '+self.time_copied
+                    self.copiedFiles.update({self.file_time_c : self.file_name_copied})
 
         for base in self.baseFiles:
             if base not in self.copiedFiles:
