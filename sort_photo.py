@@ -7,16 +7,23 @@ import exifread
 
 
 class sort():
-    def __init__(self):
-        self.disc = "/media/taras/external/photo_2"                 # for linux'/media/taras/external/photo_video'
+    def __init__(self, disc, searchPlace, minAmounth, copy):
 
-        self.searchPlace = "/media/taras/Том В/PHOTO"            #"/Users/tarasdmytrus/Pictures/Photo_nikon/may"
-        self.statistic = 1
+        self.disc = disc                          # for linux'/media/taras/external/photo_video'
+        self.searchPlace = searchPlace            #"/Users/tarasdmytrus/Pictures/Photo_nikon/may"
+        self.minAmounth = minAmounth
+
+        self.statistic = 0
         self.info = []
-        self.minAmounth = 10
-        self.copy = 0
-        self.move = False
         self.compare = True
+        self.copy = copy
+
+        if self.copy:
+            self.move = False
+        else:
+            self.move=True
+
+
 
 
         self.searchFiles()
@@ -28,6 +35,9 @@ class sort():
         self.baseFiles = {}
         for root, dirs, files in os.walk(self.searchPlace): 
             for name in files:
+                if name == '.DS_Store':
+                    continue
+
                 self.file_name = (os.path.join(root, name))
 
                 if self.load_img(self.file_name):
@@ -104,6 +114,9 @@ class sort():
 
         for root, dirs, files in os.walk(self.disc):
             for name in files:
+                if name == '.DS_Store':
+                    continue
+                    
                 self.file_name_copied = (os.path.join(root, name))
                 if self.load_img(self.file_name_copied):
                     year, month, date, exif_date = self.load_img(self.file_name_copied)
