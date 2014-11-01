@@ -12,7 +12,6 @@ class sort():
         self.disc = disc                          # for linux'/media/taras/external/photo_video'
         self.searchPlace = searchPlace            #"/Users/tarasdmytrus/Pictures/Photo_nikon/may"
         self.minAmounth = minAmounth
-
         self.statistic = 0
         self.info = []
         self.compare = True
@@ -22,9 +21,6 @@ class sort():
             self.move = False
         else:
             self.move=True
-
-
-
 
         self.searchFiles()
 
@@ -59,6 +55,9 @@ class sort():
                         self.year = match.group(3)
                         self.month = match.group(1)
                         self.date = match.group(2)
+                        if len(str(self.date)) == 1:
+                            self.date = '0' + self.date
+
                         temp_list = self.list_of_files(self.year, self.month, self.date, self.file_name)
                         if temp_list:
                             self.info.append(temp_list)
@@ -86,17 +85,24 @@ class sort():
         try: 
             self.tags = exifread.process_file(self.img_file, details=False, stop_tag="EXIF DateTimeOriginal")
             self.exif_date = str(self.tags['EXIF DateTimeOriginal'])
-            match = re.search('(\d{4}):(\d{2}):(\d{2})', str(self.exif_date)) 
+            match = re.search('(\d{4}):(\d{1,2}):(\d{1,2})', str(self.exif_date)) 
             if match:
                 year = match.group(1)
-                month = self.month_name[str(match.group(2))]
+                if len(str(match.group(2))) == 1:
+                    mon_num = '0' + str(match.group(2))
+                else:
+                    mon_num = str(match.group(2))
+
+                month = self.month_name[mon_num]
                 date = match.group(3)
+                if len(str(date)) == 1:
+                    date = '0' + date
                 self.img_file.close()
                 return year, month, date, self.exif_date
 
             else:
                 if not self.statistic:
-                    print 'Date can not be read from EXIF!'                                      # self.year, self.month, self.date, 
+                    print 'Date can not be read from EXIF!', img                                       # self.year, self.month, self.date, 
                 self.img_file.close()
                 return 0
 
@@ -116,7 +122,7 @@ class sort():
             for name in files:
                 if name == '.DS_Store':
                     continue
-                    
+
                 self.file_name_copied = (os.path.join(root, name))
                 if self.load_img(self.file_name_copied):
                     year, month, date, exif_date = self.load_img(self.file_name_copied)
@@ -192,7 +198,7 @@ class sort():
                                         self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])
                                     else:
 
-                                        self.file_path = year + '/' + month
+                                        self.file_path = year + '/' + month + '/' + date
                                         self.createFol(self.file_path)        
 
                                         self.move_files(self.file_path, self.sortedFiles[year][month][date][extension])                           

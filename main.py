@@ -26,7 +26,7 @@ class MainWindow(Ui_MainWindow, QMainWindow):
 		self.comboBox.activated.connect(self.get_min_amounth) 
 
 	def get_min_amounth(self):
-		self.min = self.comboBox.currentText()
+		self.min = int(self.comboBox.currentText())
 
 	def copy_check(self):
 		if self.radioButton.isChecked():
@@ -38,7 +38,7 @@ class MainWindow(Ui_MainWindow, QMainWindow):
 		if not self.min:
 			pass
 		else:
-			app = sort(self.disc, self.seachPlace, self.min, self.copy)
+			app = sort(self.disc.encode('utf-8'), self.seachPlace.encode('utf-8'), self.min, self.copy)
 
 	def get_paths(self):
 		self.disc = QFileDialog.getExistingDirectory(self,("Open Directory"))
